@@ -1,4 +1,3 @@
-
 # hianime-api
 
 <div align="center">
@@ -23,7 +22,10 @@
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Local Setup](#local-setup)
-  - [Deploy on Replit](#deploy-on-replit)
+- [Deployment](#deployment)
+  - [Docker Deployment](#docker-deployment)
+  - [Render Deployment](#render-deployment)
+  - [Replit Deployment](#replit-deployment)
 - [Documentation](#documentation)
   - [Anime Home Page](#1-get-anime-home-page)
   - [Anime Schedule](#2-get-anime-schedule)
@@ -40,6 +42,22 @@
   - [Episode Servers](#13-get-anime-episode-servers)
   - [Streaming Links](#14-get-anime-episode-streaming-links)
   - [All Genres](#15-get-all-genres)
+  - [Top Airing](#16-get-top-airing)
+  - [Most Popular](#17-get-most-popular)
+  - [Most Favorite](#18-get-most-favorite)
+  - [Completed Anime](#19-get-completed-anime)
+  - [Recently Added](#20-get-recently-added)
+  - [Recently Updated](#21-get-recently-updated)
+  - [Top Upcoming](#22-get-top-upcoming)
+  - [Genre List](#23-get-anime-by-genre)
+  - [Subbed Anime](#24-get-subbed-anime)
+  - [Dubbed Anime](#25-get-dubbed-anime)
+  - [Movies](#26-get-anime-movies)
+  - [TV Series](#27-get-tv-series)
+  - [OVA](#28-get-ova)
+  - [ONA](#29-get-ona)
+  - [Special](#30-get-special)
+  - [Events](#31-get-events)
 - [Development](#development)
 - [Contributors](#contributors)
 - [Acknowledgments](#acknowledgments)
@@ -103,11 +121,106 @@ bun run dev
 
 The server will be running at [http://localhost:3030](http://localhost:3030)
 
-### Deploy on Replit
+---
+
+## Deployment
+
+### Docker Deployment
+
+**Prerequisites:**
+- Docker installed ([Install Docker](https://docs.docker.com/get-docker/))
+
+**Build the Docker image:**
+
+```bash
+docker build -t hianime-api .
+```
+
+**Run the container:**
+
+```bash
+docker run -p 3030:3030 hianime-api
+```
+
+**With environment variables:**
+
+```bash
+docker run -p 3030:3030 \
+  -e NODE_ENV=production \
+  -e PORT=3030 \
+  hianime-api
+```
+
+**Using Docker Compose:**
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+
+services:
+  hianime-api:
+    build: .
+    ports:
+      - "3030:3030"
+    environment:
+      - NODE_ENV=production
+      - PORT=3030
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+Then run:
+
+```bash
+docker-compose up -d
+```
+
+### Render Deployment
+
+**One-Click Deploy:**
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ryanwtf88/hianime-api)
+
+**Manual Deployment:**
+
+1. Fork or clone the repository to your GitHub account
+2. Create a new Web Service on [Render Dashboard](https://dashboard.render.com/)
+3. Connect your GitHub repository
+4. Configure the service:
+   - **Name**: `hianime-api`
+   - **Region**: Choose your preferred region
+   - **Branch**: `main`
+   - **Runtime**: Docker
+   - **Instance Type**: Free or paid plan
+5. Add environment variables:
+   - `NODE_ENV=production`
+   - `PORT=3030`
+6. Click "Create Web Service"
+
+**Environment Variables:**
+
+| Key | Value | Required |
+|-----|-------|----------|
+| `NODE_ENV` | `production` | Yes |
+| `PORT` | `3030` | Yes |
+| `UPSTASH_REDIS_REST_URL` | Your Upstash Redis URL | Optional* |
+| `UPSTASH_REDIS_REST_TOKEN` | Your Upstash Redis Token | Optional* |
+
+*Required if you're using Redis for caching
+
+### Replit Deployment
 
 1. Import this repository into Replit
 2. Click the Run button
 3. Your API will be available at your Replit URL
+
+For detailed deployment instructions, troubleshooting, and best practices, see the [DEPLOYMENT.md](https://github.com/ryanwtf88/hianime-api/blob/master/DEPLOYMENT.md) guide.
 
 ---
 
@@ -449,22 +562,22 @@ GET /api/v1/filter?type=:type&status=:status&rated=:rated&score=:score&season=:s
 
 **Query Parameters:**
 
-- `type` - tv, movie, ova, ona, special, music
-- `status` - finished-airing, currently-airing, not-yet-aired
-- `rated` - g, pg, pg-13, r, r+, rx
-- `score` - appalling, horrible, very-bad, bad, average, fine, good, very-good, great, masterpiece
-- `season` - spring, summer, fall, winter
-- `language` - sub, dub, sub-dub
+- `type` - all, tv, movie, ova, ona, special, music
+- `status` - all, finished_airing, currently_airing, not_yet_aired
+- `rated` - all, g, pg, pg-13, r, r+, rx
+- `score` - all, appalling, horrible, very_bad, bad, average, fine, good, very_good, great, masterpiece
+- `season` - all, spring, summer, fall, winter
+- `language` - all, sub, dub, sub_dub
 - `start_date` - YYYY-MM-DD format
 - `end_date` - YYYY-MM-DD format
 - `sort` - default, recently-added, recently-updated, score, name-az, released-date, most-watched
-- `genres` - Comma-separated genre names
+- `genres` - Comma-separated genre slugs (action, adventure, cars, comedy, dementia, demons, mystery, drama, ecchi, fantasy, game, historical, horror, kids, magic, martial_arts, mecha, music, parody, samurai, romance, school, sci-fi, shoujo, shoujo_ai, shounen, shounen_ai, space, sports, super_power, vampire, harem, slice_of_life, supernatural, military, police, psychological, thriller, seinen, josei, isekai)
 - `page` - Page number (default: 1)
 
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/filter?type=tv&status=currently-airing&sort=score&page=1');
+const resp = await fetch('/api/v1/filter?type=tv&status=currently_airing&sort=score&genres=action,fantasy&page=1');
 const data = await resp.json();
 console.log(data);
 ```
@@ -661,7 +774,7 @@ GET /api/v1/servers?id=:episodeId
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/servers?id=steinsgate-3::ep=213');
+const resp = await fetch('/api/v1/servers?id=steinsgate-3?ep=213');
 const data = await resp.json();
 console.log(data);
 ```
@@ -713,7 +826,7 @@ GET /api/v1/stream?id=:episodeId&server=:server&type=:type
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/stream?id=steinsgate-3::ep=213&server=hd-1&type=sub');
+const resp = await fetch('/api/v1/stream?id=steinsgate-3?ep=213&server=hd-1&type=sub');
 const data = await resp.json();
 console.log(data);
 ```
@@ -790,6 +903,312 @@ console.log(data);
 
 ---
 
+### 16. GET Top Airing
+
+Retrieve currently airing top anime.
+
+**Endpoint:**
+```
+GET /api/v1/animes/top-airing?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/top-airing?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 17. GET Most Popular
+
+Retrieve most popular anime.
+
+**Endpoint:**
+```
+GET /api/v1/animes/most-popular?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/most-popular?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 18. GET Most Favorite
+
+Retrieve most favorited anime.
+
+**Endpoint:**
+```
+GET /api/v1/animes/most-favorite?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/most-favorite?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 19. GET Completed Anime
+
+Retrieve completed anime series.
+
+**Endpoint:**
+```
+GET /api/v1/animes/completed?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/completed?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 20. GET Recently Added
+
+Retrieve recently added anime.
+
+**Endpoint:**
+```
+GET /api/v1/animes/recently-added?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/recently-added?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 21. GET Recently Updated
+
+Retrieve recently updated anime.
+
+**Endpoint:**
+```
+GET /api/v1/animes/recently-updated?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/recently-updated?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 22. GET Top Upcoming
+
+Retrieve top upcoming anime.
+
+**Endpoint:**
+```
+GET /api/v1/animes/top-upcoming?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/top-upcoming?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 23. GET Anime by Genre
+
+Retrieve anime filtered by specific genre.
+
+**Endpoint:**
+```
+GET /api/v1/animes/genre/:genre?page=:page
+```
+
+**Available Genres:** action, adventure, cars, comedy, dementia, demons, drama, ecchi, fantasy, game, harem, historical, horror, isekai, josei, kids, magic, martial arts, mecha, military, music, mystery, parody, police, psychological, romance, samurai, school, sci-fi, seinen, shoujo, shoujo ai, shounen, shounen ai, slice of life, space, sports, super power, supernatural, thriller, vampire
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/genre/action?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 24. GET Subbed Anime
+
+Retrieve anime with subtitles available.
+
+**Endpoint:**
+```
+GET /api/v1/animes/subbed-anime?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/subbed-anime?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 25. GET Dubbed Anime
+
+Retrieve anime with English dub available.
+
+**Endpoint:**
+```
+GET /api/v1/animes/dubbed-anime?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/dubbed-anime?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 26. GET Anime Movies
+
+Retrieve anime movies.
+
+**Endpoint:**
+```
+GET /api/v1/animes/movie?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/movie?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 27. GET TV Series
+
+Retrieve anime TV series.
+
+**Endpoint:**
+```
+GET /api/v1/animes/tv?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/tv?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 28. GET OVA
+
+Retrieve Original Video Animation (OVA) content.
+
+**Endpoint:**
+```
+GET /api/v1/animes/ova?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/ova?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 29. GET ONA
+
+Retrieve Original Net Animation (ONA) content.
+
+**Endpoint:**
+```
+GET /api/v1/animes/ona?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/ona?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 30. GET Special
+
+Retrieve special anime episodes.
+
+**Endpoint:**
+```
+GET /api/v1/animes/special?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/special?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
+### 31. GET Events
+
+Retrieve anime events.
+
+**Endpoint:**
+```
+GET /api/v1/animes/events?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/animes/events?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+---
+
 ## Development
 
 Pull requests and stars are always welcome. If you encounter any bug or want to add a new feature to this API, consider creating a new [issue](https://github.com/ryanwtf88/hianime-api/issues). If you wish to contribute to this project, feel free to make a pull request.
@@ -810,9 +1229,13 @@ bun start
 
 ## Contributors
 
-Thanks to the following people for keeping this project alive and relevant.
+Thanks to the following people for keeping this project alive and relevant:
 
-[![Contributors](https://contrib.rocks/image?repo=ryanwtf88/hianime-api)](https://github.com/ryanwtf88/hianime-api/graphs/contributors)
+<a href="https://github.com/ryanwtf88/hianime-api/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ryanwtf88/hianime-api" alt="Contributors" />
+</a>
+
+Want to contribute? Check out our [contribution guidelines](https://github.com/ryanwtf88/hianime-api/blob/main/CONTRIBUTING.md) and feel free to submit a pull request!
 
 ---
 
