@@ -195,7 +195,7 @@ docker-compose up -d
 4. Configure the service:
    - **Name**: `hianime-api`
    - **Region**: Choose your preferred region
-   - **Branch**: `main`
+   - **Branch**: `master`
    - **Runtime**: Docker
    - **Instance Type**: Free or paid plan
 5. Add environment variables:
