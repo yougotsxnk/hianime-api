@@ -14,7 +14,7 @@ const homepageController = async () => {
 
     if (homePageData) {
       console.log('CACHE HIT');
-      return homePageData;
+      return typeof homePageData === 'string' ? JSON.parse(homePageData) : homePageData;
     }
 
     console.log('CACHE MISS');
@@ -29,8 +29,11 @@ const homepageController = async () => {
     });
     return response;
   } else {
+    console.log('Fetching homepage data from external API...');
     const result = await axiosInstance('/home');
+    console.log('Result:', JSON.stringify(result, null, 2));
     if (!result.success) {
+      console.error('Homepage fetch failed:', result.message);
       throw new validationError(result.message);
     }
     const response = extractHomepage(result.data);

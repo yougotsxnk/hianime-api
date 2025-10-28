@@ -1,9 +1,13 @@
 import app from './src/app.js';
-import Bun from 'bun';
 
-const bunApp = Bun.serve({
-  port: 3000,
+const PORT = process.env.PORT || 5000;
+
+Bun.serve({
+  port: PORT,
+  hostname: '0.0.0.0',
   fetch: app.fetch,
 });
 
-console.log(`server is started goto ${bunApp.url}ui`);
+console.log(`server is running at http://0.0.0.0:${PORT}`);
+console.log(`docs: http://0.0.0.0:${PORT}/doc`);
+console.log(`swagger: http://0.0.0.0:${PORT}/ui`);

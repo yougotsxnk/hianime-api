@@ -1,3 +1,4 @@
+
 # hianime-api
 
 <div align="center">
@@ -22,21 +23,27 @@
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Local Setup](#local-setup)
-  - [Deploy on Render](#deploy-on-render)
+  - [Deploy on Replit](#deploy-on-replit)
 - [Documentation](#documentation)
   - [Anime Home Page](#1-get-anime-home-page)
-  - [Anime List Page](#2-get-anime-list-page)
-  - [Anime Details](#3-get-anime-detailed-info)
-  - [Search Results](#4-get-search-results)
-  - [Search Suggestions](#5-get-search-suggestions)
-  - [Anime Episodes](#6-get-anime-episodes)
-  - [Episode Servers](#7-get-anime-episode-servers)
-  - [Streaming Links](#8-get-anime-episode-streaming-links)
+  - [Anime Schedule](#2-get-anime-schedule)
+  - [Next Episode Schedule](#3-get-next-episode-schedule)
+  - [Anime List Page](#4-get-anime-list-page)
+  - [Anime Details](#5-get-anime-detailed-info)
+  - [Search Results](#6-get-search-results)
+  - [Search Suggestions](#7-get-search-suggestions)
+  - [Filter Anime](#8-filter-anime)
+  - [Filter Options](#9-get-filter-options)
+  - [Anime Characters](#10-get-anime-characters)
+  - [Character Details](#11-get-character-details)
+  - [Anime Episodes](#12-get-anime-episodes)
+  - [Episode Servers](#13-get-anime-episode-servers)
+  - [Streaming Links](#14-get-anime-episode-streaming-links)
+  - [All Genres](#15-get-all-genres)
 - [Development](#development)
 - [Contributors](#contributors)
 - [Acknowledgments](#acknowledgments)
 - [Support](#support)
-- [Star History](#star-history)
 
 ---
 
@@ -48,9 +55,9 @@ hianime-api is a comprehensive RESTful API that provides endpoints to retrieve a
 
 > **⚠️ Disclaimer**
 
-1. There was previously a hosted version of this API for showcasing purposes only, and it was misused; since then, there have been no other hosted versions. **It is recommended to deploy your own instance for personal use** by customizing the API as you need it to be.
+1. This API is recommended for **personal use only**. Deploy your own instance and customize it as needed.
 
-2. This API is just an **unofficial API for [hianimez.to](https://hianimez.to)** and is in no other way officially related to the same.
+2. This API is just an **unofficial API for [hianime.to](https://hianime.to)** and is in no other way officially related to the same.
 
 3. The content that this API provides is not mine, nor is it hosted by me. These belong to their respective owners. This API just demonstrates how to build an API that scrapes websites and uses their content.
 
@@ -96,17 +103,17 @@ bun run dev
 
 The server will be running at [http://localhost:3030](http://localhost:3030)
 
-### Deploy on Render
+### Deploy on Replit
 
-Deploy your own instance of hianime-api on Render with one click:
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ryanwtf88/hianime-api)
+1. Import this repository into Replit
+2. Click the Run button
+3. Your API will be available at your Replit URL
 
 ---
 
 ## Documentation
 
-All endpoints return JSON responses. The examples below use the Fetch API, but you can use any HTTP library.
+All endpoints return JSON responses. Base URL: `/api/v1`
 
 ### 1. GET Anime Home Page
 
@@ -152,13 +159,76 @@ console.log(data);
 
 ---
 
-### 2. GET Anime List Page
+### 2. GET Anime Schedule
+
+Retrieve the schedule of anime releases.
+
+**Endpoint:**
+```
+GET /api/v1/schadule
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/schadule');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": {
+    "scheduledAnimes": [...]
+  }
+}
+```
+
+---
+
+### 3. GET Next Episode Schedule
+
+Get the next episode schedule for a specific anime.
+
+**Endpoint:**
+```
+GET /api/v1/schadule/next/:id
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/schadule/next/one-piece-100');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": {
+    "nextEpisode": {
+      "episodeNumber": 1120,
+      "releaseDate": "2024-12-15"
+    }
+  }
+}
+```
+
+---
+
+### 4. GET Anime List Page
 
 Retrieve anime lists based on various categories and filters.
 
 **Endpoint:**
 ```
-GET /api/v1/animes/{query}/{category}?page={page}
+GET /api/v1/animes/:query/:category?page=:page
 ```
 
 **Valid Queries:**
@@ -172,7 +242,7 @@ GET /api/v1/animes/{query}/{category}?page={page}
 | `recently-added` | No | - |
 | `recently-updated` | No | - |
 | `top-upcoming` | No | - |
-| `genre` | Yes | all genres |
+| `genre` | Yes | action, adventure, cars, comedy, dementia, demons, drama, ecchi, fantasy, game, harem, historical, horror, isekai, josei, kids, magic, martial arts, mecha, military, music, mystery, parody, police, psychological, romance, samurai, school, sci-fi, seinen, shoujo, shoujo ai, shounen, shounen ai, slice of life, space, sports, super power, supernatural, thriller, vampire |
 | `az-list` | Yes | 0-9, all, a-z |
 | `subbed-anime` | No | - |
 | `dubbed-anime` | No | - |
@@ -186,7 +256,7 @@ GET /api/v1/animes/{query}/{category}?page={page}
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/animes/az-list/0-9?page=1');
+const resp = await fetch('/api/v1/animes/az-list/a?page=1');
 const data = await resp.json();
 console.log(data);
 ```
@@ -198,23 +268,23 @@ console.log(data);
   "success": true,
   "data": {
     "pageInfo": {
-      "totalPages": 1,
+      "totalPages": 10,
       "currentPage": 1,
-      "hasNextPage": false
+      "hasNextPage": true
     },
-    "response": [
+    "animes": [
       {
-        "title": "0 Years Old Child Starting Dash Story Season 2",
-        "alternativeTitle": "0-saiji Start Dash Monogatari Season 2",
-        "id": "0-years-old-child-starting-dash-story-season-2-19479",
+        "title": "Attack on Titan",
+        "alternativeTitle": "Shingeki no Kyojin",
+        "id": "attack-on-titan-112",
         "poster": "https://cdn.noitatnemucod.net/thumbnail/300x400/100/...",
         "episodes": {
-          "sub": 12,
-          "dub": 0,
-          "eps": 12
+          "sub": 25,
+          "dub": 25,
+          "eps": 25
         },
         "type": "TV",
-        "duration": "4m"
+        "duration": "24m"
       }
     ]
   }
@@ -223,13 +293,13 @@ console.log(data);
 
 ---
 
-### 3. GET Anime Detailed Info
+### 5. GET Anime Detailed Info
 
 Retrieve comprehensive information about a specific anime.
 
 **Endpoint:**
 ```
-GET /api/v1/anime/{animeId}
+GET /api/v1/anime/:id
 ```
 
 **Request Example:**
@@ -281,19 +351,19 @@ console.log(data);
 
 ---
 
-### 4. GET Search Results
+### 6. GET Search Results
 
 Search for anime by keyword with pagination support.
 
 **Endpoint:**
 ```
-GET /api/v1/search?keyword={query}&page={page}
+GET /api/v1/search?keyword=:query&page=:page
 ```
 
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/search?keyword=titan&page=1');
+const resp = await fetch('/api/v1/search?keyword=one+piece&page=1');
 const data = await resp.json();
 console.log(data);
 ```
@@ -305,23 +375,23 @@ console.log(data);
   "success": true,
   "data": {
     "pageInfo": {
-      "totalPages": 1,
+      "totalPages": 5,
       "currentPage": 1,
-      "hasNextPage": false
+      "hasNextPage": true
     },
-    "response": [
+    "animes": [
       {
-        "title": "Attack on Titan: The Last Attack",
-        "alternativeTitle": "Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack",
-        "id": "attack-on-titan-the-last-attack-19391?ref=search",
+        "title": "One Piece",
+        "alternativeTitle": "One Piece",
+        "id": "one-piece-100",
         "poster": "https://cdn.noitatnemucod.net/thumbnail/300x400/100/...",
         "episodes": {
-          "sub": 1,
-          "dub": 1,
-          "eps": 1
+          "sub": 1100,
+          "dub": 1050,
+          "eps": 1100
         },
-        "type": "Movie",
-        "duration": "144m"
+        "type": "TV",
+        "duration": "24m"
       }
     ]
   }
@@ -330,19 +400,19 @@ console.log(data);
 
 ---
 
-### 5. GET Search Suggestions
+### 7. GET Search Suggestions
 
 Get autocomplete suggestions while searching for anime.
 
 **Endpoint:**
 ```
-GET /api/v1/search/suggestion?keyword={query}
+GET /api/v1/suggestion?keyword=:query
 ```
 
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/search/suggestion?keyword=clannad');
+const resp = await fetch('/api/v1/suggestion?keyword=naruto');
 const data = await resp.json();
 console.log(data);
 ```
@@ -354,13 +424,13 @@ console.log(data);
   "success": true,
   "data": [
     {
-      "title": "Clannad: The Movie",
-      "alternativeTitle": "Clannad Movie",
+      "title": "Naruto",
+      "alternativeTitle": "Naruto",
       "poster": "https://cdn.noitatnemucod.net/thumbnail/300x400/100/...",
-      "id": "clannad-the-movie-2553",
-      "aired": "Sep 15, 2007",
-      "type": "Movie",
-      "duration": "1h 33m"
+      "id": "naruto-677",
+      "aired": "Oct 3, 2002",
+      "type": "TV",
+      "duration": "23m"
     }
   ]
 }
@@ -368,13 +438,185 @@ console.log(data);
 
 ---
 
-### 6. GET Anime Episodes
+### 8. Filter Anime
+
+Filter anime based on multiple criteria.
+
+**Endpoint:**
+```
+GET /api/v1/filter?type=:type&status=:status&rated=:rated&score=:score&season=:season&language=:language&start_date=:start_date&end_date=:end_date&sort=:sort&genres=:genres&page=:page
+```
+
+**Query Parameters:**
+
+- `type` - tv, movie, ova, ona, special, music
+- `status` - finished-airing, currently-airing, not-yet-aired
+- `rated` - g, pg, pg-13, r, r+, rx
+- `score` - appalling, horrible, very-bad, bad, average, fine, good, very-good, great, masterpiece
+- `season` - spring, summer, fall, winter
+- `language` - sub, dub, sub-dub
+- `start_date` - YYYY-MM-DD format
+- `end_date` - YYYY-MM-DD format
+- `sort` - default, recently-added, recently-updated, score, name-az, released-date, most-watched
+- `genres` - Comma-separated genre names
+- `page` - Page number (default: 1)
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/filter?type=tv&status=currently-airing&sort=score&page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": {
+    "pageInfo": {
+      "totalPages": 20,
+      "currentPage": 1,
+      "hasNextPage": true
+    },
+    "animes": [...]
+  }
+}
+```
+
+---
+
+### 9. GET Filter Options
+
+Get all available filter options.
+
+**Endpoint:**
+```
+GET /api/v1/filter/options
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/filter/options');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": {
+    "types": [...],
+    "statuses": [...],
+    "ratings": [...],
+    "scores": [...],
+    "seasons": [...],
+    "languages": [...],
+    "sorts": [...],
+    "genres": [...]
+  }
+}
+```
+
+---
+
+### 10. GET Anime Characters
+
+Retrieve character list for a specific anime.
+
+**Endpoint:**
+```
+GET /api/v1/characters/:id?page=:page
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/characters/one-piece-100?page=1');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": {
+    "pageInfo": {
+      "totalPages": 5,
+      "currentPage": 1,
+      "hasNextPage": true
+    },
+    "characters": [
+      {
+        "name": "Monkey D. Luffy",
+        "image": "https://...",
+        "id": "character:monkey-d-luffy-1",
+        "role": "Main",
+        "voiceActors": [...]
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 11. GET Character Details
+
+Get detailed information about a character or voice actor.
+
+**Endpoint:**
+```
+GET /api/v1/character/:id
+```
+
+**Request Example (Character):**
+
+```javascript
+const resp = await fetch('/api/v1/character/character:roronoa-zoro-7');
+const data = await resp.json();
+console.log(data);
+```
+
+**Request Example (Actor):**
+
+```javascript
+const resp = await fetch('/api/v1/character/people:kana-hanazawa-1');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": {
+    "name": "Roronoa Zoro",
+    "image": "https://...",
+    "role": "Main",
+    "animeAppearances": [...],
+    "biography": "...",
+    "voiceActors": [...]
+  }
+}
+```
+
+---
+
+### 12. GET Anime Episodes
 
 Retrieve the episode list for a specific anime.
 
 **Endpoint:**
 ```
-GET /api/v1/episodes/{animeId}
+GET /api/v1/episodes/:id
 ```
 
 **Request Example:**
@@ -390,26 +632,30 @@ console.log(data);
 ```javascript
 {
   "success": true,
-  "data": [
-    {
-      "title": "Turning Point",
-      "alternativeTitle": "Hajimari to Owari no Prologue",
-      "id": "/watch/steinsgate-3?ep=213",
-      "isFiller": false
-    }
-  ]
+  "data": {
+    "totalEpisodes": 24,
+    "episodes": [
+      {
+        "title": "Turning Point",
+        "alternativeTitle": "Hajimari to Owari no Prologue",
+        "episodeNumber": 1,
+        "id": "steinsgate-3?ep=213",
+        "isFiller": false
+      }
+    ]
+  }
 }
 ```
 
 ---
 
-### 7. GET Anime Episode Servers
+### 13. GET Anime Episode Servers
 
 Get available streaming servers for a specific episode.
 
 **Endpoint:**
 ```
-GET /api/v1/servers?id={id}
+GET /api/v1/servers?id=:episodeId
 ```
 
 **Request Example:**
@@ -426,21 +672,21 @@ console.log(data);
 {
   "success": true,
   "data": {
-    "episode": 1,
+    "episodeNumber": 1,
     "sub": [
       {
-        "index": 6,
-        "type": "sub",
-        "id": "1287321",
-        "name": "HD-3"
+        "serverName": "HD-1",
+        "serverId": 4
+      },
+      {
+        "serverName": "HD-2",
+        "serverId": 1
       }
     ],
     "dub": [
       {
-        "index": 6,
-        "type": "dub",
-        "id": "1287289",
-        "name": "HD-3"
+        "serverName": "HD-1",
+        "serverId": 4
       }
     ]
   }
@@ -449,19 +695,25 @@ console.log(data);
 
 ---
 
-### 8. GET Anime Episode Streaming Links
+### 14. GET Anime Episode Streaming Links
 
 Retrieve streaming links and metadata for a specific episode.
 
 **Endpoint:**
 ```
-GET /api/v1/stream?id={id}&server={server}&type={dub|sub}
+GET /api/v1/stream?id=:episodeId&server=:server&type=:type
 ```
+
+**Query Parameters:**
+
+- `id` - Episode ID (required)
+- `server` - Server name (default: hd-1)
+- `type` - sub or dub (default: sub)
 
 **Request Example:**
 
 ```javascript
-const resp = await fetch('/api/v1/stream?server=HD-2&type=dub&id=steinsgate-3::ep=214');
+const resp = await fetch('/api/v1/stream?id=steinsgate-3::ep=213&server=hd-1&type=sub');
 const data = await resp.json();
 console.log(data);
 ```
@@ -472,32 +724,67 @@ console.log(data);
 {
   "success": true,
   "data": {
-    "streamingLink": {
-      "id": "54874",
-      "type": "dub",
-      "link": {
-        "file": "https://ec.netmagcdn.com:2228/hls-playback/...",
-        "type": "hls"
-      },
-      "tracks": [
-        {
-          "file": "https://s.megastatics.com/thumbnails/.../thumbnails.vtt",
-          "kind": "thumbnails"
-        }
-      ],
-      "intro": {
-        "start": 75,
-        "end": 165
-      },
-      "outro": {
-        "start": 1330,
-        "end": 1419
-      },
-      "server": "HD-2",
-      "iframe": "https://megacloud.blog/embed-2/e-1/ggJPRb9r8nPp?k=1"
+    "tracks": [
+      {
+        "file": "https://...",
+        "label": "English",
+        "kind": "captions"
+      }
+    ],
+    "intro": {
+      "start": 75,
+      "end": 165
     },
-    "servers": "HD-2"
+    "outro": {
+      "start": 1330,
+      "end": 1419
+    },
+    "sources": [
+      {
+        "url": "https://...",
+        "type": "hls"
+      }
+    ],
+    "anilistID": 9253,
+    "malID": 9253
   }
+}
+```
+
+---
+
+### 15. GET All Genres
+
+Retrieve all available anime genres.
+
+**Endpoint:**
+```
+GET /api/v1/genres
+```
+
+**Request Example:**
+
+```javascript
+const resp = await fetch('/api/v1/genres');
+const data = await resp.json();
+console.log(data);
+```
+
+**Response Schema:**
+
+```javascript
+{
+  "success": true,
+  "data": [
+    {
+      "name": "Action",
+      "slug": "action"
+    },
+    {
+      "name": "Adventure",
+      "slug": "adventure"
+    }
+  ]
 }
 ```
 
@@ -507,9 +794,17 @@ console.log(data);
 
 Pull requests and stars are always welcome. If you encounter any bug or want to add a new feature to this API, consider creating a new [issue](https://github.com/ryanwtf88/hianime-api/issues). If you wish to contribute to this project, feel free to make a pull request.
 
-### Frontend Reference
+### Running in Development Mode
 
-Check out [ANIMO](URL) for a frontend implementation example.
+```bash
+bun run dev
+```
+
+### Running in Production Mode
+
+```bash
+bun start
+```
 
 ---
 
@@ -535,14 +830,6 @@ Special thanks to the following projects for inspiration and reference:
 If you find this project useful, please consider giving it a star on GitHub!
 
 [![GitHub stars](https://img.shields.io/github/stars/ryanwtf88/hianime-api?style=social)](https://github.com/ryanwtf88/hianime-api/stargazers)
-
----
-
-## Star History
-
-<div align="center">
-  <img src="https://starchart.cc/ryanwtf88/hianime-api.svg?variant=adaptive" alt="Star History Chart" />
-</div>
 
 ---
 

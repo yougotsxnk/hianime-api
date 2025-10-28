@@ -1,6 +1,6 @@
 const apiDocumentation = {
   generalInfo: {
-    baseUrl: 'https://hianime-api.vercel.app/api/v1',
+    baseUrl: 'http://localhost:5000/api/v1',
     documentationUrl: 'https://github.com/ryanwtf88/hianime-api/blob/main/README.md',
   },
   endpoints: [
