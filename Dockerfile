@@ -27,10 +27,12 @@ COPY --from=prerelease /app/index.js .
 COPY --from=prerelease /app/package.json .
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 5000
 
 # Set environment to production
 ENV NODE_ENV=production
+ENV PORT=5000
+ENV ORIGIN=*
 
 # Run the app
 USER bun
